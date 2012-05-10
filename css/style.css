@@ -1,0 +1,153 @@
+h1{background: white;
+	border-bottom: 1px solid black;
+	padding: 8px ;
+	color: #2464A4;
+	font-family: Verdana;
+	text-shadow: 3px 2px 0 lightgrey;
+	font-size: 3em;
+	margin-top: 0px;
+	text-align: center;
+	-webkit-box-shadow: 0 8px 6px -8px grey;
+	   -moz-box-shadow: 0 8px 6px -8px grey;
+	        box-shadow: 0 8px 6px -8px grey;
+}
+
+
+body{
+	font-size: 0.82em;
+	background: #E7E6E6;
+}
+#content{
+	
+	padding: 0px 3%;
+}
+#multiOpenAccordion{
+	font-weight: bold;
+	margin-left: 10px; 
+	width: 1150px;
+	font-size: 1em;
+}
+
+#buttonArea{
+	margin: 10px;
+}
+#limitColumn{
+	margin-left: 900px;
+}
+#topborder{
+border-bottom: 1px solid black;
+
+padding: 10px 0px;
+
+}
+#intro{
+	margin-bottom: 30px;
+	font-weight: normal;
+	padding: 20px;
+	font-size: 1.1em;
+	border: 1px solid grey;
+	background: #F0EEEE;-moz-box-shadow:   -moz-box-shadow:    1px 2px 5px 2px #ccc;
+	-webkit-box-shadow: 1px 2px 5px 2px #ccc;
+	box-shadow:         1px 2px 5px 2px #ccc;
+}
+
+/* My Query */
+#query{
+	background:#F0EEEE;
+	margin: 20px 0;
+	padding: 15px;
+	border: 1px solid grey;
+	-moz-box-shadow:    1px 2px 5px 2px #ccc;
+	-webkit-box-shadow: 1px 2px 5px 2px #ccc;
+	box-shadow:         1px 2px 5px 2px #ccc;
+}
+textarea{background:#FDFDFD;border: 1px solid lightgrey;padding:10px;
+}
+.info{}
+/* Output */
+#borderBottom{
+}
+#output{
+	width: 1150px;
+	padding-top: 20px;
+	margin-left: 10px;
+}
+td{
+	text-align:center;
+}
+
+/* Prefix */
+.prefix{-webkit-box-shadow: 0 8px 6px -10px grey;
+	   -moz-box-shadow: 0 8px 6px -10px grey;
+	        box-shadow: 0 8px 6px -10px grey;
+	width: 720px;
+	border: 1px solid grey;
+	padding:6px 18px;
+	margin: 10px 0px;
+	background: #AFC7C7;
+	-moz-border-radius: 5px; -webkit-border-radius: 5px; -khtml-border-radius: 5px; border-radius: 5px; 
+}
+.prefixNamespace{
+	width: 150px;
+}
+.prefixUri{
+	width: 450px;
+}
+
+.prefixInfoNamespace{
+	margin-left: 40px;
+	font-style: italic;
+}
+.prefixInfoUri{
+	margin-left: 250px;
+	font-style: italic;
+}
+/* Select */
+.selector{
+	margin-left: 200px;
+}
+.selectInfoVariable{
+	margin-left: 180px;
+	font-style: italic;
+}
+.selectVariable{
+	width: 150px;
+}
+
+/* Where*/
+.whereInfoVariable{
+	font-style: italic;
+}
+.whereHeadSubject{
+	margin-left: 90px;
+}
+.whereHeadObject{
+	margin-left: 30px;
+}
+.whereHeadPredicate{
+	margin: 0px 270px;
+}
+.triple{-webkit-box-shadow: 0 8px 6px -10px grey;
+	   -moz-box-shadow: 0 8px 6px -10px grey;
+	        box-shadow: 0 8px 6px -10px grey;
+	width: 1050px;
+	border: 1px solid grey;
+	padding:6px 18px;
+	margin: 15px 0px;
+	background: #AFC7C7;
+	-moz-border-radius: 5px; -webkit-border-radius: 5px; -khtml-border-radius: 5px; border-radius: 5px; 
+}
+.subject,.predicate,.object{
+	margin-right: 18px;
+	width: 320px;
+}
+.load{
+	width: 990px;
+	height: 10px;
+	margin: 2px ;
+	text-align: center;
+	border: 1px solid white;
+}
+.popupChangeVariable{width:500px}
+.popupAddTriple{width:500px}
+.locked{background:green}

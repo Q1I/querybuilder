@@ -1,0 +1,142 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=8"/>
+<link rel="stylesheet" href="css/style.css">
+<link type="text/css" href="css/start/jquery-ui-1.8.19.custom.css" rel="stylesheet" />
+<link rel="stylesheet" href="css/jquery.dataTables_themeroller.css">
+<script type="text/javascript" src="js/lib/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="js/lib/jquery-ui-1.8.19.custom.min.js"></script>
+<script type="text/javascript" src="js/lib/jquery.multi-open-accordion-1.5.3.min.js"></script>
+<script type="text/javascript" src="js/lib/jquery.dataTables.js"></script>
+<script type="text/javascript" src="js/lib/jquery.jsonp-2.3.0.js"></script>
+
+<script type="text/javascript" src="js/queryBuilder.js"></script>
+<script type="text/javascript">
+			$(document).ready(function() {
+				resultTable = $('#tableResult').dataTable( {
+					"bJQueryUI": true,
+					"sPaginationType": "full_numbers",
+					"bAutoWidth": false,
+					"aoColumns": [{ sWidth: '50%' }]
+
+				} );
+				resultTable.fnAdjustColumnSizing();
+			} );
+			$(function(){ 
+				// Accordion
+				//$("#accordion").accordion({ header: "h3", collapsible: true });
+				$('#multiOpenAccordion').multiOpenAccordion({
+					active: [1,2]
+				});
+				// Tabs
+				$('#tabs').tabs();
+
+				// Button
+				setButton();
+				
+	
+				//hover states on the static widgets
+				$('#dialog_link, ul#icons li').hover(
+					function() { $(this).addClass('ui-state-hover'); },
+					function() { $(this).removeClass('ui-state-hover'); }
+				);
+				
+				init();
+
+			});
+		</script>
+</head>
+<body>
+<!-- input -->
+<div id='topBorder' ></div>
+<h1>QUERYBUILDER <span style='color:black;font-style:italic;font-size:0.6em'>: University of Leipzig</span></h1>
+<div id="content">
+
+<div id="intro">
+With this tool you can build Sparql queries and retrieve data from the <b>DBpedia</b> ontology. </br>It has an autocomplete function for the <b>WHERE</b> section:
+<ul><li> Lock and unlock an input field with <b>Enter</b> key.</li>
+<li> Autocomplete will <b>only work on unlocked</b> input fields. </li>
+<li> If 2 fields of a triple pattern are unlocked, the autocomplete function will be acitvated.</li>
+</ul>
+</br><b>How to build a Sparql query</b>
+<ol><li> Add or modify (change name, add triple) Selector</li><li>Add Pattern (Optional: Add Prefix, Add Filter)</li><li>Set your Query</li><li>Execute your Query</li></ol>
+</div>
+<!-- input -->
+<div id="input">
+	<!-- MultiOpenAccordion -->
+	<div id="multiOpenAccordion">
+		<h3><a href="#">PREFIX</a></h3>
+		<div id="prefixInput">
+			<span><button id="addPrefixButton" onClick="addPrefix()">Add Prefix</button><span class="prefixInfoNamespace">Namespace</span><span class="prefixInfoUri">URI</span></span>
+		</div>
+		<h3><a href="#">SELECT</a></h3>
+		<div id="selectInput">
+			<span><button id="addSelectorButton" onClick="addSelector()">Add Selector</button><span class="selectInfoVariable">Variables</span></span>
+		</div>
+		<h3><a href="#">WHERE</a></h3>
+		<div id="whereInput">
+			<span><button id="addTripleButton" onClick="addTriple()">Add Triple</button><span class="whereInfoVariable"><span class='whereHeadSubject'>Subject</span><span class='whereHeadPredicate'>Predicate</span><span class='whereHeadObject'>Object</span></span></span>
+		</div>
+		<h3><a href="#">FILTER</a></h3>
+		<div id="filterInput">
+			<button id="addFilterButton" onClick="addFilter()">Add Filter</button></br>Not yet implemented..
+		</div>
+	</div>
+	<!-- MultiOpenAccordion end-->
+	<!-- button -->
+	<div id='buttonArea'><button id="getQueryButton" onClick="setQuery()">Show/Set Query</button>
+	<span id="limitColumn">Limit: <select id="limit" onChange="updateResults()">
+		<option value="10">10</option>
+		<option value="50">50</option>
+		<option value="100">100</option>	
+	</select></span>
+	</div>
+	<!-- button end-->
+		<!-- Autocomplete 
+		<h2 class="demoHeaders">Autocomplete</h2>
+		<div>
+			<input id="autocomplete" style="z-index: 100; position: relative" title="type &quot;a&quot;" value='as'/>
+		</div>
+		<div id="stuff"></div>
+		-->
+	
+	
+</div><!-- input end -->
+<!-- query -->
+<div id="query">
+	<p class="info">The query shown in this textarea will be executed.</br>You can also edit this query manually.</p>
+	<p><strong>Your Query:</strong></p>
+	<textarea cols='80' rows='10' ></textarea>
+	<p><button id="executeButton" onClick="executeQuery()">Execute this Query</button></p>
+</div><!-- query end-->
+<img id='queryLoad' src='css/images/load.gif' style='display: none;'>
+<p class="info"><b>Results:</b></p>
+<div id='bottomBorder'></div>
+<div id="output">
+<table cellpadding="0" cellspacing="0" border="0" class="display" id="tableResult" width="100%">
+	<thead>
+		<tr id="tableHead">
+			<!-- Insert head -->
+			<th>Head</th>
+		</tr>
+	</thead>
+	<tbody id="tableBody">
+	<!-- Insert values -->
+		<tr >			
+			<td>Results will be displayed here.</td>
+		</tr>
+		<tr >			
+			<td>Try it out.</td>
+		</tr>
+	</tbody>
+</table></div>
+<!-- test
+<button onClick='showArray()'>Show Array</button>
+<p id='test'></p>
+-->
+<div class='popupAddTriple' title="Add Triple Options" ></div>
+<div class='popupChangeVariable' title="Change Variable Options" ></div>
+</div><!-- content end-->
+</body>
+</html>
