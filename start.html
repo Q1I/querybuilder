@@ -76,7 +76,7 @@ With this tool you can build Sparql queries and retrieve data from the <b>DBpedi
 		</div>
 		<h3><a href="#">WHERE</a></h3>
 		<div id="whereInput">
-			<span><button id="addTripleButton" onClick="addTriple()">Add Triple</button><span class="whereInfoVariable"><span class='whereHeadSubject'>Subject</span><span class='whereHeadPredicate'>Predicate</span><span class='whereHeadObject'>Object</span></span></span>
+			<!--span><button id="addTripleButton" onClick="addTriple()">Add Triple</button--><span class="whereInfoVariable"><span class='whereHeadSubject'>Subject</span><span class='whereHeadPredicate'>Predicate</span><span class='whereHeadObject'>Object</span></span><!--/span-->
 		</div>
 		<h3><a href="#">FILTER</a></h3>
 		<div id="filterInput">
@@ -89,7 +89,9 @@ With this tool you can build Sparql queries and retrieve data from the <b>DBpedi
 	<span id="limitColumn">Limit: <select id="limit" onChange="updateResults()">
 		<option value="10">10</option>
 		<option value="50">50</option>
-		<option value="100">100</option>	
+		<option value="100">100</option>
+		<option value="200">200</option>
+		<option value="500">500</option>	
 	</select></span>
 	</div>
 	<!-- button end-->

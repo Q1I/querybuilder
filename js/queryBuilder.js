@@ -14,7 +14,7 @@ addSelector();
 borderStyle = '2px dashed lightgrey';
 
 // Limit for autocomplete
-acQueryLimit='100';
+acQueryLimit='350';
 
 /*This section deals with series of SPARQL queries used to retrieve different values from DBPedia so as to get a full list of things on the screen*/
     	var acQuery = "PREFIX ontology: <http://dbpedia.org/ontology/> PREFIX property: <http://dbpedia.org/property/> PREFIX resource: <http://dbpedia.org/resource/> PREFIX position:<http://www.w3.org/2003/01/geo/wgs84_pos#> SELECT DISTINCT ?o WHERE { resource:Bihar <http://dbpedia.org/ontology/leaderName> ?o. }";
@@ -79,6 +79,8 @@ function parseUri(uri,uriCache){
 	}
 	else
 		parsed = buffer;
+	if(uri.indexOf('http://')!=-1)
+		uri= '<'+uri+'>';
 	//uriCache.push(parsed);
 	//return parsed;
 	uriCache.push(uri);	
@@ -86,7 +88,7 @@ function parseUri(uri,uriCache){
 }
 
 function addPrefix(){
-	var newPrefix = $("<div class='prefix'>PREFIX <input class='prefixNamespace'></input> : &lt; <input class='prefixUri'></input> &gt; <a title='Remove this prefix' onclick='removePrefix(this.parentNode)' href='#'>[-]</a></div>").hide().show('drop');
+	var newPrefix = $("<div class='prefix'>PREFIX <input class='prefixNamespace'></input> : &lt; <input class='prefixUri'></input> &gt; <a href='#' title='Remove this prefix' onclick='removePrefix(this.parentNode);return false;' >[-]</a></div>").hide().show('drop');
 
 	$('#prefixInput').append(newPrefix);
 
@@ -114,9 +116,9 @@ function addSelector(){
 		}
 	}*/
 	var selectorName = "selector"+selectors.length;
-	var newSelector = $("<div class='selector' ><button id='"+selectorName+"Button'>? <input id='"+selectorName+"' value='"+selectorValue+"'></input></button><a title='Remove this triple pattern' onclick='removeSelector(this.parentNode,"+selectorName+"Hide,"+selectorsLength+")' href='#'>[-]</a></div>"+
+	var newSelector = $("<div class='selector' ><button id='"+selectorName+"Button'>? <input id='"+selectorName+"' value='"+selectorValue+"'></input></button><a title='Remove this triple pattern' onclick='removeSelector(this.parentNode,"+selectorName+"Hide,"+selectorsLength+");return false;' href='#'>[-]</a></div>"+
 	"<div id='"+selectorName+"Hide' style='margin-left:150px;padding:10px;border:1px solid grey;text-align:center;background-color:white;width:400px'>"+
-"<button onClick='showAddTripleOptions("+selectorsLength+")'>Add Triple Pattern</button>"+
+"<button onClick='showAddTripleOptions(\"?\"+document.getElementById(\""+selectorName+"\").value)'>Add Triple Pattern</button>"+"<button onClick='addTypePattern(\"?\"+document.getElementById(\""+selectorName+"\").value)'>Add Type Specification</button>"+
 "<button onClick='showChangeVariableOptions("+selectorsLength+")'>Change Variable</button>"+"</div>").hide().show('drop');
 
 	selectors.push(selectorValue);
@@ -126,7 +128,7 @@ function addSelector(){
 	// Set UI button
 	$('#'+ selectorName+'Button' ).button().click(function() {
 		
-		options("#"+selectorName+"Hide");
+		showSelectorOptions("#"+selectorName+"Hide");
 		
 		//var newValue = 'xxx';		
 		//$('#'+selectorName).val(newValue);
@@ -172,36 +174,14 @@ function showArray(){
 }
 
 
-function options(selectorName){
+function showSelectorOptions(selectorName){
 	if($(selectorName).is(":visible"))
 		$( selectorName).hide("drop",300);
 	else
 		$( selectorName).show( "bounce", 100);
 }
 
-function addTriple(){
-	var newTriple =$("<div class='triple'>"+
-	"<input class='subject' value='?s'></input>"+
-	"<input class='predicate' value='?p'></input>"+
-	"<input class='object' value='?o'></input>"+
-	"<a title='Remove this triple' onclick='removeTriple(this.parentNode)' href='#'>[-]</a></div>").hide().show('drop');
-	$('#whereInput').append(newTriple);
-	// Set AC
-	alert("bla");
-	$(".predicate").keypress(function(event) {
-	  if ( event.which == 13 ) {
-	     //event.preventDefault();
-	   }
-	   //var msg = "Handler for .keypress() called time(s).";
-
-	//alert(msg);
-	});
-
-	
-}
-
-function addTriple(selectorIndex,position){
-	var variable = '?'+$('#selector'+selectorIndex).val();
+function addTriple(variable,position){
 	var subject="value ='?s'";
 	var predicate="value ='?p'";
 	var object="value ='?o'";
@@ -212,10 +192,14 @@ function addTriple(selectorIndex,position){
 	else if(position==3)
 		object="value='"+variable+"' readonly='readonly' style='border:2px dashed lightgrey;background:#F7F6F6;'";
 	var newTriple =$("<div class='triple'>"+
-	"<input class='subject' "+subject+"></input>"+
-	"<input class='predicate' "+predicate+"></input>"+
-	"<input class='object' "+object+"></input>"+
-	"<a title='Remove this prefix' onclick='removeTriple(this.parentNode)' href='#'>[-]</a><img class='load' src='css/images/load.gif' style='display: none;'></div>");
+	"<input class='subject' "+subject+" onClick=showTripleOptions(this)></input>"+
+	"<input class='predicate' "+predicate+" onClick=showTripleOptions(this)></input>"+
+	"<input class='object' "+object+" onClick=showTripleOptions(this)></input>"+
+	"<a title='Remove this prefix' onclick='removeTriple(this.parentNode);return false;' href='#'>[-]</a><img class='load' src='css/images/load.gif' style='display: none;'></div>");
+	var variableOption = $("<button class='addTripleButton'>Add Triple Pattern</button>");
+	variableOption.hide();  
+	newTriple.append(variableOption);
+
 	newTriple.hide().show('drop');
 	$('#whereInput').append(newTriple);
 	$(".popupAddTriple").dialog('close');
@@ -238,21 +222,80 @@ function addTriple(selectorIndex,position){
 		//alert(msg);
 	});
 	
+
+	
 }
 
-function showAddTripleOptions(selectorIndex){
-	var variable = $('#selector'+selectorIndex).val();
-	$(".popupAddTriple").html( "Add new triple. </br>Use variable = '<b>?"+variable+"</b>' as:</br></br>"+
-	"<button onClick='addTriple("+selectorIndex+",1)'>subject</button>"+
-	"<button onClick='addTriple("+selectorIndex+",2)'>predicate</button>"+
-	"<button onClick='addTriple("+selectorIndex+",3)'>object</button></div>");
+function addTypePattern(variable){
+
+	var subject="value='"+variable+"' readonly='readonly' style='border:2px dashed lightgrey;background:#F7F6F6;'";
+	var predicate="value='rdf:type' readonly='readonly' style='border:2px dashed lightgrey;background:#F7F6F6;'";
+	var object="value='?type'";
+	var newTriple =$("<div class='triple'>"+
+	"<input class='subject' "+subject+" onClick=showTripleOptions(this)></input>"+
+	"<input class='predicate' "+predicate+" onClick=showTripleOptions(this)></input>"+
+	"<input class='object' "+object+" onClick=showTripleOptions(this)></input>"+
+	"<a title='Remove this prefix' onclick='removeTriple(this.parentNode);return false;' href='#'>[-]</a><img class='load' src='css/images/load.gif' style='display: none;'></div>");
+	var variableOption = $("<button class='addTripleButton'>Add Triple Pattern</button>");
+	variableOption.hide();  
+	newTriple.append(variableOption);
+
+	newTriple.hide().show('drop');
+	$('#whereInput').append(newTriple);
+	$(".popupAddTriple").dialog('close');
+	newTriple.find("input").keydown(function(event) {
+		if(event.target.readOnly==false){
+			if (event.which == 13) {
+				if ((event.target.style.border).length == 0) {			
+					event.preventDefault();
+					event.target.style.border=borderStyle;
+				}else
+					event.target.style.border='';
+			}else{
+				if((event.target.style.border).length == 0) 
+					setAc(event.target);		
+			}
+
+		}	
+		var msg = "Handler for .keypress(). Element: "+(event.target.style.border);
+		//alert(msg);
+	});
+	
+}
+
+function showTripleOptions(domElement){
+	$(".addTripleButton").hide();
+	var triple = $(domElement).parent();
+	var thisClass = $(domElement).attr('class');
+ 	var button = triple.find(".addTripleButton");
+	var marginValue = '0px';
+	if(thisClass.indexOf('subject')!=-1)
+		marginValue = '60px';
+	else if(thisClass.indexOf('predicate')!=-1)
+		marginValue = '400px';
+	else if(thisClass.indexOf('object')!=-1)
+		marginValue = '750px';
+	button.css('margin-left',marginValue); 	
+	button.click(function() {
+		showAddTripleOptions($(domElement).val());  
+	});
+	button.show('slide');
+	
+}
+
+function showAddTripleOptions(variable){
+	$(".popupAddTriple").html( "Add new triple. </br>Use '<b>"+variable+"</b>' as:</br></br>"+
+	"<button onClick='addTriple(\""+variable+"\",1)'>subject</button>"+
+	"<button onClick='addTriple(\""+variable+"\",2)'>predicate</button>"+
+	"<button onClick='addTriple(\""+variable+"\",3)'>object</button></div>");
 	$(".popupAddTriple").dialog('open');
 }
 
+
 function showChangeVariableOptions(selectorIndex){
 	variableOldValue = $('#selector'+selectorIndex).val();
-	$(".popupChangeVariable").html( "Change variable = '"+variableOldValue+"' into:</br>"+
-	"<input id='selectorChangeVariableInput"+selectorIndex+"' value='newValue'></input>"+
+	$(".popupChangeVariable").html( "Change variable <b>'?"+variableOldValue+"'</b> into:</br>"+
+	"?<input id='selectorChangeVariableInput"+selectorIndex+"' value='newValue'></input>"+
 	"<button onClick='changeVariable("+selectorIndex+")'>Change</button>");
 	$(".popupChangeVariable").dialog('open');
 }
@@ -261,6 +304,14 @@ function showChangeVariableOptions(selectorIndex){
 function changeVariable(selectorIndex){
 	var oldValue = '?'+variableOldValue;
 	var newValue = $("#selectorChangeVariableInput"+selectorIndex).val();
+	// Search if new value already exists
+	for(var i = 0; i<selectors.length; i++){
+		//alert(i+": "+selectors[i]);
+		if(selectors[i] == newValue){
+			alert("Sorry not possible! Variable <b>"+newValue+"</b> already exists!");
+			return;
+		}
+	}			
 	selectors[selectorIndex]=newValue; // change selector array value
 	$('#selector'+selectorIndex).val(newValue); // change selectorInput 1 value
 	// Change all values in whereInput
@@ -313,7 +364,7 @@ function setAc(domElement){
 						maxRows: 12,
 						matchContains: true
 					},
-					timeout: 13000,
+					timeout: 30000,
 					beforeSend: function(){
 						if( ($(domElement).css('border-left-style') == 'dashed') || 
 								($(domElement).data('data-ac')=='started') ){ // locked or marked
@@ -346,12 +397,15 @@ function setAc(domElement){
 						$(domElement).parent().find('.load').hide();
 						// Unmark
 						$(domElement).removeData('data-ac');
+						//alert("Number of results: "+uriCache.length);
+						$(domElement).autocomplete( "search", $(domElement).val() );
+
 
 					},
 					 error: function (request, status, error) {
 						// Hide load	
 						$(domElement).parent().find('.load').hide();
-						alert("Error: Timeout (13s) for autocomplete request.");
+						alert("Error: Timeout (30s) for autocomplete request.");
 						$(domElement).val('');
 						// Unmark
 						$(domElement).removeData('data-ac');
@@ -457,7 +511,8 @@ function getAcTriple(triple){
 
 
 function getRequestURL(query){
-	var url = "http://dbpedia.org/sparql?default-graph-uri=http%3A%2F%2Fdbpedia.org&query=" + escape(query) + "&format=json";
+	var url = "http://live.dbpedia.org/sparql?default-graph-uri=http%3A%2F%2Fdbpedia.org&query=" + escape(query) + "&format=json";
+//var url ="http://dbpedia.org/sparql?default-graph-uri=http%3A%2F%2Fdbpedia.org&query=" + escape(query) + "&format=json";
 	return url;
 }
 
@@ -482,7 +537,7 @@ function setQuery(){
 
 function getPrefix(){
 	var prefix="";
-	var defaultPrefix = "PREFIX ontology: <http://dbpedia.org/ontology/>  \nPREFIX property: <http://dbpedia.org/property/> \nPREFIX resource: <http://dbpedia.org/resource/> \nPREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> \nPREFIX owl: <http://www.w3.org/2002/07/owl#> ";
+	var defaultPrefix = "PREFIX dbo: <http://dbpedia.org/ontology/>  \nPREFIX dbp: <http://dbpedia.org/property/> \nPREFIX dbr: <http://dbpedia.org/resource/> \nPREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> \nPREFIX owl: <http://www.w3.org/2002/07/owl#> ";
 	$('.prefix').each(function(index) {
 	    prefix += "\nPREFIX "+ $(this).find(".prefixNamespace").val()+": <"+$(this).find(".prefixUri").val()+"> ";
 	});
@@ -564,17 +619,20 @@ function executeQuery(callback){
 	tableHead="";
 
 	var query = getQuery();
-	var URL="http://dbpedia.org/sparql?default-graph-uri=http%3A%2F%2Fdbpedia.org&query=" + escape(query) + "&format=json";
+	var URL="http://live.dbpedia.org/sparql?default-graph-uri=http%3A%2F%2Fdbpedia.org&query=" + escape(query) + "&format=json";
 	$.ajax({
 		url:URL,
 		dataType: 'jsonp',
 		jsonp: 'callback',
-		timeout: 13000,
+		timeout: 20000,
 		success:function(data) {
+			// head
+			var vars = data.head.vars;
+			// bindings
 			for(var i=0;i<data.results.bindings.length;i++){
 				addTableRow(data.results.bindings[i]);
 			}
-			setTable();
+			setTable(vars);
 			// Hide load	
 			$('#queryLoad').hide('slide');
 
@@ -582,7 +640,7 @@ function executeQuery(callback){
 		error: function (request, status, error) {
 			// Hide load	
 			$('#queryLoad').hide('slide');
-			alert("Error: Timeout (13s) for autocomplete request.");
+			alert("Error: Timeout (20s) for autocomplete request.");
 		}
 	});
 	$('#tripleResult').show();
@@ -590,9 +648,9 @@ function executeQuery(callback){
 				
 }
 
-function setTable(){
+function setTable(vars){
 	$('#output').html("");
-	setTableHead();	
+	setTableHead(vars);	
 	table+=("<table cellpadding='0' cellspacing='0' border='0' class='display' id='tableResult' width='100%'>");
 	table+=(tableHead);
 	table+=(tableBody);
@@ -608,18 +666,20 @@ function addTable(){
 }
 
 function addTableRow(row){
+	var link ="";
 	tableBody+="<tr>";
 	$.each(row, function(k, v) {
-		tableBody+="<td>"+v.value+"</td>";
-					});
+		if(v.value.indexOf("http://")!=-1) // If value is a URI
+			link =" <a href='"+v.value+"' title='Browse URI' target='_blank'><img src='css/images/link.png' /></a>";
+		tableBody+="<td>"+v.value+link+"</td>";
+	});
 	tableBody+="</tr>";
 }
-function setTableHead(){
+function setTableHead(vars){
+	//alert("Vars length: "+vars.length);
 	tableHead="<thead><tr id='tableHead'>";
-	if(variablesArray.length==0)
-		getSelect();
-	for(var j=0; j<variablesArray.length;j++){
-		addToTableHead(variablesArray[j]);
+	for(var j=0; j<vars.length;j++){
+		addToTableHead(vars[j]);
 		//alert("vars: "+vars[j]);
 	}
 	tableHead+="</tr></thead>";
