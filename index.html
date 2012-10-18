@@ -54,14 +54,21 @@
 <div id="content">
 
 <div id="intro">
-With this tool you can build Sparql queries and retrieve data from the <b>DBpedia</b> ontology. </br>It has an autocomplete function for the <b>WHERE</b> section:
-<ul><li> Lock and unlock an input field with <b>Enter</b> key.</li>
+With this tool you can build SPARQL queries and query different SPARQL endpoints. </br>It has an autocomplete function for the <b>WHERE</b> section:
+<ul><li> Lock and unlock an input field with <b>Enter</b>.</li>
 <li> Autocomplete will <b>only work on unlocked</b> input fields. </li>
 <li> If 2 fields of a triple pattern are unlocked, the autocomplete function will be acitvated.</li>
 </ul>
-</br><b>How to build a Sparql query</b>
-<ol><li> Add or modify (change name, add triple) Selector</li><li>Add Pattern (Optional: Add Prefix, Add Filter)</li><li>Set your Query</li><li>Execute your Query</li></ol>
+</br><b>How to build a SPARQL query</b>
+<ol><li>Select SPARQL endpoint</li><li> Add or modify (change name, add triple) Selector</li><li>Add Pattern (Optional: Add Prefix, Add Filter)</li><li>Set/Show your Query</li><li>Execute your Query</li></ol>
 </div>
+<p><i>SPARQL endpoint:</i></br>
+<select id="endpoints">
+	<option value="dbpedia">DBpedia</option>
+	<option value="wiktionary">Wiktionary</option>
+	<option value="mlode">MLODE</option>
+</select>
+</p>
 <!-- input -->
 <div id="input">
 	<!-- MultiOpenAccordion -->
@@ -80,7 +87,7 @@ With this tool you can build Sparql queries and retrieve data from the <b>DBpedi
 		</div>
 		<h3><a href="#">FILTER</a></h3>
 		<div id="filterInput">
-			<button id="addFilterButton" onClick="addFilter()">Add Filter</button></br>Not yet implemented..
+			<button id="addFilterButton" onClick="addFilter()">Add Filter</button></br>
 		</div>
 	</div>
 	<!-- MultiOpenAccordion end-->

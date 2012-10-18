@@ -144,6 +144,20 @@ td{
 .addTripleButton{
 	width: 180px;
 }
+/* Filter */
+.filter{-webkit-box-shadow: 0 8px 6px -10px grey;
+	   -moz-box-shadow: 0 8px 6px -10px grey;
+	        box-shadow: 0 8px 6px -10px grey;
+	width: 600px;
+	border: 1px solid grey;
+	padding:6px 18px;
+	margin: 10px 0px;
+	background: #AFC7C7;
+	-moz-border-radius: 5px; -webkit-border-radius: 5px; -khtml-border-radius: 5px; border-radius: 5px; 
+}
+.filterField{
+width: 520px;}
+
 .load{
 	width: 990px;
 	height: 10px;

@@ -14,7 +14,7 @@ addSelector();
 borderStyle = '2px dashed lightgrey';
 
 // Limit for autocomplete
-acQueryLimit='350';
+acQueryLimit='250';
 
 /*This section deals with series of SPARQL queries used to retrieve different values from DBPedia so as to get a full list of things on the screen*/
     	var acQuery = "PREFIX ontology: <http://dbpedia.org/ontology/> PREFIX property: <http://dbpedia.org/property/> PREFIX resource: <http://dbpedia.org/resource/> PREFIX position:<http://www.w3.org/2003/01/geo/wgs84_pos#> SELECT DISTINCT ?o WHERE { resource:Bihar <http://dbpedia.org/ontology/leaderName> ?o. }";
@@ -364,7 +364,7 @@ function setAc(domElement){
 						maxRows: 12,
 						matchContains: true
 					},
-					timeout: 30000,
+					timeout: 35000,
 					beforeSend: function(){
 						if( ($(domElement).css('border-left-style') == 'dashed') || 
 								($(domElement).data('data-ac')=='started') ){ // locked or marked
@@ -405,7 +405,7 @@ function setAc(domElement){
 					 error: function (request, status, error) {
 						// Hide load	
 						$(domElement).parent().find('.load').hide();
-						alert("Error: Timeout (30s) for autocomplete request.");
+						alert("Error: Timeout (35s) for autocomplete request.");
 						$(domElement).val('');
 						// Unmark
 						$(domElement).removeData('data-ac');
@@ -443,7 +443,8 @@ function getAcQuery(domElement){
 	variables="";
 	var limiter = 'Limit '+acQueryLimit;
 	var select = 'SELECT DISTINCT ?acValue ';
-	var filter = "OPTIONAL { FILTER (lang(?acValue) ='en').} ";
+	//var filter = "OPTIONAL { FILTER (lang(?acValue) ='en').} ";
+	var filter = "";
 
 
 	var patterns="";	
@@ -477,13 +478,25 @@ function getPatterns(){
 	//alert("triple pattern: "+triplePatterns);
 	if(triplePatterns.length == 0)
 		return "";
-	return "\nWHERE { "+triplePatterns+" } ";
+	return "\nWHERE { "+triplePatterns + getFilter()+" } ";
 }
 
 function getTriple(triple){
 	var subject = triple.find(".subject").val();
 	var predicate = triple.find(".predicate").val();
+	
 	var object = triple.find(".object").val();
+	// check if literal	
+	if(object.indexOf("?")<0)
+		if(object.indexOf(":") == -1 || object.indexOf("/") == -1 ){
+		//check if number
+		var numberRegex = /^[+-]?\d+(\.\d+)?([eE][+-]?\d+)?$/;
+		var str = object;
+		if(numberRegex.test(str)) {
+		   
+		}else
+			object = '"'+object+'"@en';
+		}
 	var triple= subject+" "+predicate+" "+object+". ";
 	return triple;
 }
@@ -511,8 +524,19 @@ function getAcTriple(triple){
 
 
 function getRequestURL(query){
-	var url = "http://live.dbpedia.org/sparql?default-graph-uri=http%3A%2F%2Fdbpedia.org&query=" + escape(query) + "&format=json";
-//var url ="http://dbpedia.org/sparql?default-graph-uri=http%3A%2F%2Fdbpedia.org&query=" + escape(query) + "&format=json";
+	var url;
+	var endpoint = $('#endpoints').val();
+	if(endpoint=='dbpedia')
+		// dboedia
+		//var url = "http://live.dbpedia.org/sparql?default-graph-uri=http%3A%2F%2Fdbpedia.org&query=" + escape(query) + "&format=json";
+		url ="http://dbpedia.org/sparql?default-graph-uri=http%3A%2F%2Fdbpedia.org&query=" + escape(query) + "&format=json";
+	else if(endpoint=='wiktionary')
+		// Wiktionary
+		url ="http://wiktionary.dbpedia.org/sparql?default-graph-uri=http%3A%2F%2Fwiktionary.dbpedia.org%2F&query="+escape(query)+"&should-sponge=&format=json&timeout=0&debug=on";
+	else if(endpoint=='mlode')
+		// SentiWs
+		url ="http://mlode.nlp2rdf.org/sparql?default-graph-uri=http%3A%2F%2Fmlode.nlp2rdf.org&query="+escape(query)+"&format=json&timeout=0&debug=on";
+
 	return url;
 }
 
@@ -530,14 +554,16 @@ function setQuery(){
 		alert("Ooops! Your where section is empty!");
 		return;
 	}
-	query=getPrefix()+select+patterns+getFilter()+limiter;
+	query=getPrefix()+select+patterns+limiter;
 	$('textarea').val(query);
 
 }
 
 function getPrefix(){
 	var prefix="";
-	var defaultPrefix = "PREFIX dbo: <http://dbpedia.org/ontology/>  \nPREFIX dbp: <http://dbpedia.org/property/> \nPREFIX dbr: <http://dbpedia.org/resource/> \nPREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> \nPREFIX owl: <http://www.w3.org/2002/07/owl#> ";
+	// var defaultPrefix = "PREFIX dbo: <http://dbpedia.org/ontology/>  \nPREFIX dbp: <http://dbpedia.org/property/> \nPREFIX dbr: <http://dbpedia.org/resource/> \nPREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> \nPREFIX owl: <http://www.w3.org/2002/07/owl#> ";
+	var defaultPrefix = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> \nPREFIX owl: <http://www.w3.org/2002/07/owl#> ";
+	
 	$('.prefix').each(function(index) {
 	    prefix += "\nPREFIX "+ $(this).find(".prefixNamespace").val()+": <"+$(this).find(".prefixUri").val()+"> ";
 	});
@@ -562,6 +588,11 @@ function getSelect(){
 	return "\nSELECT DISTINCT "+variables+" ";
 }
 
+function addFilter(){
+var newFilter = $("<div class='filter'>FILTER <input class='filterField'></input> <a href='#' title='Remove this filter' onclick='removeFilter(this.parentNode);return false;' >[-]</a></div>").hide().show('drop');
+
+	$('#filterInput').append(newFilter);
+}
 
 function getFilterTriple(filterTriple){
 	var subject = filterTriple.find(".subject").val();
@@ -578,16 +609,29 @@ function getFilterTriple(filterTriple){
 	return triple;
 }
 
+function getFilterInput(filterField){
+	if(filterField.find(".filterField").val().length==0)
+		return "";
+	var filter = "\nFILTER ( "+filterField.find(".filterField").val()+" )";
+	
+
+	return filter;
+}
+
 function getFilter(){
 	if($('.filter').length==0)
 		return "";
-	var filter="\nFILTER ";	
+	var filter="";	
 	$('.filter').each(function(index) {
-	    filter+=getFilterTriple($(this));
+	    filter+=getFilterInput($(this));
 	});
 	//var filter = "FILTER (lang(?Abstract)=\"en\")";
-	alert("Filter: "+filter);
+	//alert("Filter: "+filter);
 	return filter;
+}
+
+function removeFilter(node){
+	$(node).hide('drop',function(){ $(node).remove(); });
 }
 
 function getLimit(){
@@ -619,12 +663,14 @@ function executeQuery(callback){
 	tableHead="";
 
 	var query = getQuery();
-	var URL="http://live.dbpedia.org/sparql?default-graph-uri=http%3A%2F%2Fdbpedia.org&query=" + escape(query) + "&format=json";
+	//var URL="http://live.dbpedia.org/sparql?default-graph-uri=http%3A%2F%2Fdbpedia.org&query=" + escape(query) + "&format=json";
+// var URL ="http://dbpedia.org/sparql?default-graph-uri=http%3A%2F%2Fdbpedia.org&query=" + escape(query) + "&format=json";
+	var URL =getRequestURL(query);
 	$.ajax({
 		url:URL,
 		dataType: 'jsonp',
 		jsonp: 'callback',
-		timeout: 20000,
+		timeout: 25000,
 		success:function(data) {
 			// head
 			var vars = data.head.vars;
@@ -640,7 +686,7 @@ function executeQuery(callback){
 		error: function (request, status, error) {
 			// Hide load	
 			$('#queryLoad').hide('slide');
-			alert("Error: Timeout (20s) for autocomplete request.");
+			alert("Error: Timeout (25s) for autocomplete request.");
 		}
 	});
 	$('#tripleResult').show();
